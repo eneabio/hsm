@@ -1,0 +1,13 @@
+Hsm 0.1.0 
+----------------------
+30 July 2013
+ - Initial Commit and first setup of things
+
+
+Hsm 0.1.1
+----------------------
+30 July 2013
+ - Python Naming conventions PEP8
+ - Code Documentation ( some __doc__ )
+ - run tests with 'python hsm.test'
+

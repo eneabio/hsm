@@ -22,6 +22,9 @@ class ObjTopState(actor.ActorTopState):
 		print "FatalError"
 		self.transition(ObjErrorState)
 
+	def on_print(self, mydata):
+		print str(mydata)
+
 	def _enter(self):
 		print "enter %s State" % (self.__class__.__name__, )
 
@@ -121,6 +124,11 @@ class ActorTest(unittest.TestCase):
 		st = obj.get_state()
 		print st
 
+	def test_send_data(self):
+		obj = ObjTopState()
+		obj.send_print("sample")
+		obj.send_fini()
+		runtime.dispatch_all_msg()
 
 #obj.send_fini()
 #while True:

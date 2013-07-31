@@ -20,9 +20,10 @@ def create_msg_sender(fun, signal, handler_name):
 def create_msg_receiver(fun, name):
 
 	def receive_msg(*args, **kwargs):
+		handler = fun
 		self = args[0]
 		self._log.trace("(%s : %s) about to receive message ('%s' args:%s kwargs:%s) ", id(self), self.__class__.__name__, name, str(args), str(kwargs), )
-		return fun(*args, **kwargs)
+		return handler(*args, **kwargs)
 
 	return receive_msg
 

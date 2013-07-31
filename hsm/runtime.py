@@ -37,8 +37,9 @@ While True:
 
 """
 from collections import deque
+import select
 
-__all__ = ["post_msg", "get_msg", "peek_sig", "dispatch_msg"]
+__all__ = ["post_msg", "get_msg", "peek_sig", "dispatch_msg", "connect"]
 
 actor_message_queue = deque()
 
@@ -85,3 +86,149 @@ def dispatch_all_msg():
 		if not msg:
 			break
 		dispatch_msg(msg)
+
+
+#def monitor_for_input(self, fd):
+	#"""
+	#monitors a socket for input
+	#"""
+	#try:
+		#index_vec = self._rlist_index[fd]
+	#except:
+		#index = self._rlist.__len__()
+		#self._rlist_index[fd] = [index, index, -1]
+		#self._rlist.append(index)
+
+	#if index_vec[0] == -1:
+		#index = len(self._rlist)
+		#index_vec[0] = index
+		#self._rlist.append(index)
+
+#def unmonitor_for_input(self, fd):
+	#try:
+		#index_vec = self._rlist_index[fd]
+	#except KeyError:
+		#return
+
+	#index = index_vec[0]
+	#if index == -1:
+		#return
+	#rlist_len = self._rlist.__len__()
+	#if rlist_len != index:
+		#self.pop()
+		#return
+	#last = self._rlist.pop()
+	#self._rlist[index] = last
+
+#def monitor_for_output(self, fd):
+	#"""
+	#monitors a socket for input: returns the number of monitored sockets
+	#for input.
+	#"""
+	#try:
+		#index_vec = self._wlist_index[fd]
+	#except:
+		#index = len(self._wlist)
+		#self._wlist_index[fd] = [index, index, -1]
+		#self._wlist.append(index)
+		#return index + 1
+
+	#if index_vec[0] == -1:
+		#index = len(self._wlist)
+		#index_vec[0] = index
+		#self._wlist.append(index)
+		#return index + 1
+
+	#count = len(self._wlist)
+	#return count
+
+#def unmonitor_for_output(self, fd):
+	#pass
+
+#def monitor_for_except(self, fd):
+	#pass
+#def unmonitor_for_except(self, fd):
+	#pass
+
+#def monitor_for_connect(self, fd):
+	#pass
+
+def unmonitor_for_conect(self, fd):
+	pass
+
+#class IOActor(ActorTopState):
+
+	#SOCK_CONNECTING = 1
+	#SOCK_ACCEPTING  = 2
+	#SOCK_READING    = 4
+	#SOCK_WRITING    = 8
+
+	#def __init__(self):
+		## indexes are being monitores
+		##(fd -> [rlist_index, xlist_index, wlist_index]
+		##   -1 = not monitored
+		##   used to avoid o(N) list maintainance
+
+		#self._rlist = []
+		#self._rlist_index = {}
+
+		#self._xlist = []
+		#self._xlist_index = {}
+
+		#self._wlist = []
+		#self._wlist_index = {}
+
+		#self._active_sock = []
+
+		##Datastrucure setup
+
+		#self._fdindex = {} # maps fd -> State
+
+		#self._acceptinglist_index = {} # a { [target1, target2, ...], [target1, target2, ...] }
+		#self._acceptinglist       = [] # a [fd]
+
+		#self._readinglist_index = {}
+		#self._readinglist       = []
+
+		#self._writeinglist_index = {}
+		#self._writeinglist       = []
+
+		#self._connectinglist_index = {}
+		#self._connectinglist       = []
+		#self._byte
+
+#@initial
+#class IOStagingState(IOActor):
+
+	#def _enter():
+		#pass
+	#def _exit():
+		#pass
+
+#@initial
+#class IORunningState(IOTopState):
+
+	#def tcp_connect(io, sock, (host, port), target):
+		#io.monitor_for_input(sock)
+		#io.monitor_for_except(sock)
+		#io.monitor_for_connect(sock, target)
+
+
+	#def tcp_accept(io, sock, (host, port), target):
+		#io.monitor_for_input(sock)
+		#io.monitor_for_except(sock)
+		#io.monitor_for_accept(sock, target)
+
+	#def close(io, sock):
+		#pass
+
+	#def update(io):
+		#read_list, write_list, xcept_list = select.select(io._rlist, io._wlist, io._xlist, 0)
+		#for fd in read_list:
+			#state = io._state[fd]
+			#if state == IOActor.SOCK_ACCEPTING:
+
+				#pass
+
+#io = IOActor()
+

@@ -102,10 +102,16 @@ class ActorTopState(object):
 	def _exit(self):
 		pass
 
+	def get_state_name(self):
+		'Returns the current state name'
+		return self.__class__.__name__
+
 	def get_state(self):
+		'Returns the current state'
 		return self.__class__
 
 	def on_fini(self):
+		'Close the finite state machine by exiting up to the top use state'
 		while True:
 			self._log.trace( "(%s : %s): about to exit state", id(self), self.__class__.__name__,)
 			self._exit()
@@ -115,8 +121,8 @@ class ActorTopState(object):
 				continue
 			break
 
-
 	def transition(self, state):
+		'Executes a transition from the current state to state'
 		outState = self.__class__
 		inState  = state
 		left  = outState
@@ -163,12 +169,6 @@ class ActorTopState(object):
 			self.__class__ = inState
 			self._enter()
 
-		### Fix End ....
-
-
-
-
-
 		#Drill down
 		next_state = self.__class__.__initial_state__
 		while next_state is not None:
@@ -182,6 +182,10 @@ class ActorTopState(object):
 
 
 def initial(state):
+	"""
+	State anotation. Marks the annotated state as the initial state of the
+	the parent state.
+	"""
 	parent = state.__bases__[0]
 	if not issubclass(parent, ActorTopState):
 		raise NotActorStateError(state)

@@ -1,16 +1,13 @@
 =======
- Hsm 
+ Hsm
 =======
 
 Hsm is a hierarchical state machines library designed for
-very large hand written state machines.
+*very large hand written state machines*.
 
-Hsm is designed to be concise, i.e. let the user write little and 
-do a lot, esecially for hierarchical finite 
-state machines definition.
+Hsm is designed to be concise, i.e. let the user write little and
+do a lot, especially for hierarchical finite state machines definition.
 
-It's designed for *very large hand written state machines*
-
-Enjoy,
+Have fun,
 
 Fabio N. Filasieno

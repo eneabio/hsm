@@ -2,5 +2,13 @@
 # Licenced under the MIT license
 # see LICENCE.txt
 
-__all__ = [ "actor", "runtime" ]
+import unittest
+from hsm.test import *
+
+unittest.main()
+
+
+
+
+
 

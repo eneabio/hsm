@@ -2,3 +2,4 @@ syntax: glob
 dist/**
 MANIFEST
 **pyc
+hsm\.wpu

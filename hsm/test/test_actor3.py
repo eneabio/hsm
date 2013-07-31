@@ -10,125 +10,117 @@ import unittest
 # ObjTopState
 #  - ObjMachineUpState *
 #     - ObjStandbyState *
-#     - ObjActiveState     
+#     - ObjActiveState
 #  - ObjMachineDownState
-#     - ObjNotActiveState 
-#     - ObjCheckProblemState * 
+#     - ObjNotActiveState *
 #  - ObjMachineErrorState
-
 
 class ObjTopState(actor.ActorTopState):
 
     def on_fatal_error(self):
 	self.transition(ObjErrorState)
-"""
+
+    def on_problem(self, problem_type):
+	if problem_type == "WARNING":
+	    self.transition(ObjStandbyState)
+	else:
+	    self.transition(ObjNotActiveState)
+
     def _enter(self):
-	print "enter %s State" % (self.__class__.__name__, )
+	print "enter %s State" % (self.get_state_name(), )
 
     def _exit(self):
-	print "exit %s State" % (self.__class__.__name__, )
-"""
+	print "exit %s State" % (self.get_state_name(), )
 
 @actor.initial
 class ObjMachineUpState(ObjTopState):
-    pass
+
+    def _enter(self):
+	print "enter %s State" % (self.get_state_name() )
+
+    def _exit(self):
+	print "exit %s State" % (self.get_state_name(), )
 
 class ObjMachineDownState(ObjTopState):
-    pass
 
-class ObjMachineErrorState(ObjTopState):   
+    def _enter(self):
+	print "enter %s State" % (self.get_state_name(), )
 
- 	print "FatalError"
+    def _exit(self):
+	print "exit %s State" % (self.get_state_name(), )
 
-@actor.initial
-class ObjStandbyState(ObjMachineUpState):  
+    def on_problem_resolved(self):
+	self.transition(ObjActiveState)
 
-	def on_switch_active(self):
-	    self.transition(ObjActiveState)
+class ObjMachineErrorState(ObjTopState):
 
-class ObjActiveState(ObjMachineUpState):  
+    def _enter(self):
+	print "enter %s State" % (self.get_state_name(), )
 
-	def on_switch_standby(self):
-	    self.transition(ObjStandbyState)
-
-	def on_problem(self):
-	    self.transition(ObjCheckProblemState)
-	    msg = self.get_msg
-	    if msg[0] == "WARNING":
-		self.send_warning(self.get_msg[1])
-	    else:
-		self.send_error(self.get_msg[1])
-
-class ObjNotActiveState(ObjMachineDownState):   
-
-	def on_problem_resolved(self):
-	    self.transition(ObjCheckProblemState)
-
+    def _exit(self):
+	print "exit %s State" % (self.get_state_name(), )
 
 @actor.initial
-class ObjCheckProblemState(ObjMachineDownState):
+class ObjStandbyState(ObjMachineUpState):
 
-	def on_error(self):
-	    self.transition(ObjNotActiveState)
+    def on_switch_active(self):
+	self.transition(ObjActiveState)
 
-	def on_warning(self):
-	    self.transition(ObjStandbyState)
+    def on_problem_resolved(self):
+	self.transition(ObjActiveState)
 
-	def on_repaired(self):
-	    self.transition(ObjActiveState)
+    def _enter(self):
+	print "enter %s State" % (self.get_state_name(), )
 
-  
+    def _exit(self):
+	print "exit %s State" % (self.get_state_name(), )
+
+class ObjActiveState(ObjMachineUpState):
+
+    def on_switch_standby(self):
+	self.transition(ObjStandbyState)
+
+    def _enter(self):
+	print "enter %s State" % (self.get_state_name(), )
+
+    def _exit(self):
+	print "exit %s State" % (self.get_state_name(), )
+
+@actor.initial
+class ObjNotActiveState(ObjMachineDownState):
+
+    def _enter(self):
+	print "enter %s State" % (self.get_state_name(), )
+
+    def _exit(self):
+	print "exit %s State" % (self.get_state_name(), )
+
+    def on_problem_resolved(self):
+	self.transition(ObjActiveState)
 
 class ActorTest2(unittest.TestCase):
-	
+
     def test_hfsm_state(self):
 	obj = ObjTopState()
 	st = obj.get_state()
 	self.assertTrue(ObjStandbyState == st)
-	
 	obj.send_switch_active()
-	runtime.dispatch_all_msg()	
+
+	runtime.dispatch_all_msg()
 	st = obj.get_state()
-	self.assertTrue(ObjActiveState == st)   
+	self.assertTrue(ObjActiveState == st)
 
 	obj.send_problem("WARNING")
-	runtime.dispatch_all_msg()	
-	st = obj.get_state()
-	self.assertTrue(ObjStandbyState == st) 
-
-"""
-    def test_different_parent_transition(self):
-	obj = ObjTopState()
-	obj.transition(ObjCState)
 	runtime.dispatch_all_msg()
 	st = obj.get_state()
-	self.assertTrue(ObjDState == st)
+	self.assertTrue(ObjStandbyState == st)
 
-    def test_ancestor_transition(self):
-	obj = ObjTopState()
-	obj.transition(ObjTopState)
+	obj.send_problem_resolved()
 	runtime.dispatch_all_msg()
 	st = obj.get_state()
-	self.assertTrue(ObjBState == st)
+	self.assertTrue(ObjActiveState == st)
 
-    def test_msg_send(self):
-	obj = ObjTopState()
-	obj.send_fatal_error()
+	obj.send_problem("Error")
 	runtime.dispatch_all_msg()
 	st = obj.get_state()
-	self.assertTrue(ObjErrorState == st)
-
-    def test_fini(self):
-	obj = ObjTopState()
-	obj.send_fini()
-	runtime.dispatch_all_msg()
-	st = obj.get_state()
-	print st
-"""
-
-#obj.send_fini()
-#while True:
-    #msg = get_msg()
-    #if not msg:
-	#break
-    #dispatch_msg(msg)
+	self.assertTrue(ObjNotActiveState == st)

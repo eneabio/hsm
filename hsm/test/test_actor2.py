@@ -13,8 +13,7 @@ import unittest
 #     - ObjDState *
 #     - ObjEState
 #  - ObjAState *
-#     - ObjBState *  
-
+#     - ObjBState *
 
 class ObjTopState(actor.ActorTopState):
 
@@ -91,13 +90,13 @@ class ActorTest2(unittest.TestCase):
 	obj = ObjTopState()
 	st = obj.get_state()
 	self.assertTrue(ObjBState == st)
-	
+
     def test_transition_to_current_state(self):
 	obj = ObjTopState()
 	obj.transition(ObjBState)
-	runtime.dispatch_all_msg()	
+	runtime.dispatch_all_msg()
 	st = obj.get_state()
-	self.assertTrue(ObjBState == st)    
+	self.assertTrue(ObjBState == st)
 
     def test_different_parent_transition(self):
 	obj = ObjTopState()

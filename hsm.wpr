@@ -11,5 +11,5 @@ proj.directory-list = [{'dirloc': loc('.'),
                         'recursive': True,
                         'watch_for_changes': True}]
 proj.file-type = 'shared'
-proj.main-file = loc('hsm/test/tcp_server.py')
+proj.main-file = loc('hsm/test/test_iomonitor.py')
 testing.auto-test-file-specs = ('test_*.py',)

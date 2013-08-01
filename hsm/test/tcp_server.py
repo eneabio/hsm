@@ -1,7 +1,7 @@
 from hsm import actor
 from hsm import runtime
 from hsm import iomonitor
-import http_parser
+from http_parser.parser import HttpParser
 
 import unittest
 import socket
@@ -15,9 +15,11 @@ class TestContextTop(actor.TopState):
                 self._address = address
                 self._parent = parent
                 self._body = ""
-                self._to_send = 0
-                self._sent = 0
                 self._reply = ""
+                self._total_sent = 0
+                self._reply_size = 0
+                self._http_parser = HttpParser()
+                assert self._http_parser is not None
 
         def _enter(self):
                 iomonitor.monitor_except(self._socket, self)
@@ -27,7 +29,7 @@ class TestContextTop(actor.TopState):
                 self._parent.send_remove_context(self)
                 self._socket  = None
                 self._address = None
-                self._http_parser = http_parser.parser()
+                self._http_parser = None
 
 @actor.initial_state
 class TestContextWaitingRequest(TestContextTop):
@@ -39,58 +41,67 @@ class TestContextWaitingRequest(TestContextTop):
                 iomonitor.unmonitor_incoming(self._socket)
 
         def on_data_incoming(self, socket):
+                p = self._http_parser
                 data = socket.recv(4096)
                 print """---\n%s---\n"""% data
                 if data == "":
                         iomonitor.unmonitor(self._socket)
+                        self._log.error("Read error")
                         self.send_fini()
+                        return
                 recved = len(data)
                 nparsed = p.execute(data, recved)
                 assert nparsed == recved
                 if p.is_headers_complete():
-                        print p.get_headers()
+                        pass
 
                 if p.is_partial_body():
                         self._body.append(p.recv_body())
 
                 if p.is_message_complete():
-                        self.transition()
+                        self.transition(TestContextSending)
 
         def on_data_except(self, socket):
-                pass
+                self._log.error("Exception")
+                iomonitor.unmonitor(socket)
 
-
-class TestContextBuildResponse(TestContextTop):
+class TestContextSending(TestContextTop):
         def _enter(self):
-                iomonitor.monitor_outgoing(self._socket)
+                iomonitor.monitor_outgoing(self._socket, self)
 
         def _exit(self):
                 iomonitor.unmonitor(self._socket)
 
-        def on_data_outgoing(self, socket):
-                msg = ""
-                self._to_send = len(msg)
-                self._sent = 0
-
-                #build msg here
-                self.transition(TestContextSendResponse)
-
         def on_data_except(self, socket):
+                self._log.error("Except")
                 self.send_fini()
 
-class TestContextSendResponse(TestContextTop):
-
-        def _enter(self):
-                iomonitor.monitor_outgoing(self._socket)
-
-        def _exit(self):
-                iomonitor.unmonitor(self._socket)
+@actor.initial_state
+class TestContextBuildResponse(TestContextSending):
 
         def on_data_outgoing(self, socket):
-                pass
+                def build_reply(msg):
+                        contentLen = len(msg)
+                        return "HTTP/1.1 200 OK\nContent-Type: text/xml; charset=utf-8\nContent-Length: %s\n\n%s\n" % (contentLen, msg)
 
-        def on_data_except(self, socket):
-                pass
+                msg = build_reply("<html><head></head><body>Hello World</body></html>")
+                self._reply_size = len(msg)
+                self.transition(TestContextSendResponse)
+
+class TestContextSendResponse(TestContextSending):
+
+        def on_data_outgoing(self, socket):
+                reply = self._reply
+                total_sent = self._total_sent
+                to_send = reply[total_sent:]
+                sent = self._socket.send(to_send)
+                if sent == 0:
+                        self._log.error("Error while sending")
+                        self.send_fini()
+                self._total_sent = total_sent + sent
+                if self._total_sent == self._reply_size:
+                        self._log.error("Message sent")
+                        self.send_fini()
 
 # Server ######################################################################
 
@@ -137,7 +148,7 @@ class TcpServerRunning(TcpServer):
         def _enter(self):
                 iomonitor.monitor_incoming(self._acceptor, self)
                 iomonitor.monitor_except(self._acceptor, self)
-                print "Server is running"
+                print "Server is accepting at: %s %s" %(self._host, self._port)
 
         def _exit(self):
                 iomonitor.unmonitor(self._acceptor)

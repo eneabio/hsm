@@ -31,6 +31,11 @@ class TestContextTop(actor.TopState):
                 self._address = None
                 self._http_parser = None
 
+        def on_data_except(self, socket):
+                iomonitor.unmonitor(socket)
+                self._log.error("Except")
+                self.send_fini()
+
 @actor.initial_state
 class TestContextWaitingRequest(TestContextTop):
 
@@ -61,20 +66,13 @@ class TestContextWaitingRequest(TestContextTop):
                 if p.is_message_complete():
                         self.transition(TestContextSending)
 
-        def on_data_except(self, socket):
-                self._log.error("Exception")
-                iomonitor.unmonitor(socket)
-
 class TestContextSending(TestContextTop):
+
         def _enter(self):
                 iomonitor.monitor_outgoing(self._socket, self)
 
         def _exit(self):
                 iomonitor.unmonitor(self._socket)
-
-        def on_data_except(self, socket):
-                self._log.error("Except")
-                self.send_fini()
 
 @actor.initial_state
 class TestContextBuildResponse(TestContextSending):
@@ -82,9 +80,9 @@ class TestContextBuildResponse(TestContextSending):
         def on_data_outgoing(self, socket):
                 def build_reply(msg):
                         contentLen = len(msg)
-                        return "HTTP/1.1 200 OK\nContent-Type: text/xml; charset=utf-8\nContent-Length: %s\n\n%s\n" % (contentLen, msg)
+                        return "HTTP/1.1 200 OK\nContent-Type: text/html; charset=utf-8\nContent-Length: %s\n\n%s\n" % (contentLen, msg)
 
-                msg = build_reply("<html><head></head><body>Hello World</body></html>")
+                self._reply = build_reply("<html><head></head><body>Hello World</body></html>")
                 self._reply_size = len(msg)
                 self.transition(TestContextSendResponse)
 
@@ -94,13 +92,18 @@ class TestContextSendResponse(TestContextSending):
                 reply = self._reply
                 total_sent = self._total_sent
                 to_send = reply[total_sent:]
+                self._log.trace("about to send %s" % to_send)
                 sent = self._socket.send(to_send)
+                self._log.trace("sent: %s" % sent)
+                self._reply = to_send
                 if sent == 0:
-                        self._log.error("Error while sending")
+                        self._log.error("socket closed")
                         self.send_fini()
+                        return
                 self._total_sent = total_sent + sent
                 if self._total_sent == self._reply_size:
-                        self._log.error("Message sent")
+                        iomonitor.unmonitor_outgoing(self._socket)
+                        self._log.info("Message sent")
                         self.send_fini()
 
 # Server ######################################################################
@@ -138,8 +141,10 @@ class TcpServerIdle(TcpServer):
                 self.transition(TcpServerRunning)
 
 class TcpServerError(TcpServer):
+
         def _enter():
                 pass
+
         def _exit():
                 pass
 
@@ -148,15 +153,16 @@ class TcpServerRunning(TcpServer):
         def _enter(self):
                 iomonitor.monitor_incoming(self._acceptor, self)
                 iomonitor.monitor_except(self._acceptor, self)
-                print "Server is accepting at: %s %s" %(self._host, self._port)
+                self._log.info("Server is accepting at: %s %s", self._host, self._port)
 
         def _exit(self):
                 iomonitor.unmonitor(self._acceptor)
 
         def on_data_incoming(self, socket):
                 sock_addr_tuple = socket.accept()
-                self._log.info( "Accepted client from addr:%s", sock_addr_tuple[1] )
+                sock_addr_tuple[0].setblocking(0)
                 context = self._Context(sock_addr_tuple, self)
+                self._log.info( "Accepted client from addr:%s", sock_addr_tuple[1] )
                 self._context_index[context] = context
 
         def on_data_except(self, socket):
@@ -170,7 +176,8 @@ class TcpServerRunning(TcpServer):
 
 
 
-print "test tcp server"
+from hsm import default_logger
+default_logger.setLevel(default_logger.INFO)
 server = TcpServer("localhost", 8080, 16, TestContextTop)
 server.send_start()
 while True:

@@ -15,7 +15,7 @@ import unittest
 #     - ObjNotActiveState *
 #  - ObjMachineErrorState
 
-class ObjTopState(actor.ActorTopState):
+class ObjTopState(actor.TopState):
 
     def on_fatal_error(self):
 	self.transition(ObjErrorState)
@@ -32,7 +32,7 @@ class ObjTopState(actor.ActorTopState):
     def _exit(self):
 	print "exit %s State" % (self.get_state_name(), )
 
-@actor.initial
+@actor.initial_state
 class ObjMachineUpState(ObjTopState):
 
     def _enter(self):
@@ -60,7 +60,7 @@ class ObjMachineErrorState(ObjTopState):
     def _exit(self):
 	print "exit %s State" % (self.get_state_name(), )
 
-@actor.initial
+@actor.initial_state
 class ObjStandbyState(ObjMachineUpState):
 
     def on_switch_active(self):
@@ -86,7 +86,7 @@ class ObjActiveState(ObjMachineUpState):
     def _exit(self):
 	print "exit %s State" % (self.get_state_name(), )
 
-@actor.initial
+@actor.initial_state
 class ObjNotActiveState(ObjMachineDownState):
 
     def _enter(self):

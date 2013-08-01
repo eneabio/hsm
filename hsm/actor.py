@@ -2,11 +2,24 @@
 # Licenced under the MIT license
 # see LICENCE.txt
 
+"""
+actor - defines the actor top state 'ActorTopState'.
+
+Actors, within the hsm library, are an implementation of hierarchical state.
+
+Actors support the following features:
+- *State Inheritance*
+- *Hierarchical transitions*, with automatic _entry()/_exit()
+- *Automatic protocol implementation*, to define an event just define an on_xxx
+  method.
+
+"""
+
 import default_logger
 import types
 from runtime import post_msg as runtime_post_msg
 
-__all__ = [ "ActorTopState", "initial", "MissingInitialStateError", "NotActorStateError" ]
+__all__ = [ "TopState", "initial_state", "MissingInitialStateError", "NotActorStateError" ]
 
 def create_msg_sender(fun, signal, handler_name):
 
@@ -45,7 +58,7 @@ class NotHsmStateError(Exception):
 
 def empty_function(self): pass
 
-class ActorMetaClass(type):
+class StateMetaClass(type):
 
 	def __new__(meta, name, bases, dct):
 		return type.__new__(meta, name, bases, dct)
@@ -90,9 +103,9 @@ class ActorMetaClass(type):
 		instance._initialState = cls
 		return instance
 
-class ActorTopState(object):
+class TopState(object):
 
-	__metaclass__ = ActorMetaClass
+	__metaclass__ = StateMetaClass
 
 	def __init__(self):
 		object.__init__(self)
@@ -117,7 +130,7 @@ class ActorTopState(object):
 			self._log.trace( "(%s : %s): about to exit state", id(self), self.__class__.__name__,)
 			self._exit()
 			parent_state = self.__class__.__bases__[0]
-			if parent_state != ActorTopState:
+			if parent_state != TopState:
 				self.__class__ = parent_state
 				continue
 			break
@@ -131,13 +144,13 @@ class ActorTopState(object):
 		if left == right:
 			self._log.warn("transition to current state has no effect")
 			return
-		assert left != ActorTopState
-		assert right != ActorTopState
+		assert left != TopState
+		assert right != TopState
 
-		while left != ActorTopState and right != left:
+		while left != TopState and right != left:
 			left = left.__bases__[0]
 			right = inState
-			while right != ActorTopState and right != left:
+			while right != TopState and right != left:
 				right = right.__bases__[0]
 
 		assert left == right
@@ -154,7 +167,7 @@ class ActorTopState(object):
 		if inState != self.__class__:
 			head =  inState.__bases__[0]
 			enterTrail = []
-			if head != ActorTopState:
+			if head != TopState:
 				while head != left:
 					enterTrail.append(head)
 					head = head.__bases__[0]
@@ -181,15 +194,14 @@ class ActorTopState(object):
 			self._enter()
 			next_state = next_state.__initial_state__
 
-
-def initial(state):
+def initial_state(state):
 	"""
 	State anotation. Marks the annotated state as the initial state of the
 	the parent state.
 	"""
 	parent = state.__bases__[0]
-	if not issubclass(parent, ActorTopState):
+	if not issubclass(parent, TopState):
 		raise NotActorStateError(state)
-	if parent != ActorTopState:
+	if parent != TopState:
 		parent.__initial_state__ = state
 	return state

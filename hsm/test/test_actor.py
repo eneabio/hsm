@@ -16,7 +16,7 @@ import unittest
 #     - ObjRightChildState *
 #
 
-class ObjTopState(actor.ActorTopState):
+class ObjTopState(actor.TopState):
 
 	def on_fatal_error(self):
 		print "FatalError"
@@ -39,7 +39,7 @@ class ObjErrorState(ObjTopState):
 	def _exit(self):
 		print "exit %s State" % (self.__class__.__name__, )
 
-@actor.initial
+@actor.initial_state
 class ObjLeftState(ObjTopState):
 
 	def _enter(self):
@@ -51,7 +51,7 @@ class ObjLeftState(ObjTopState):
 	def on_update(self):
 		self.transition(ObjRightState)
 
-@actor.initial
+@actor.initial_state
 class ObjLeftChildState(ObjLeftState):
 
 	def _enter(self):
@@ -81,7 +81,7 @@ class ObjRightState(ObjTopState):
 	def _exit(self):
 		print "exit %s State" % (self.__class__.__name__, )
 
-@actor.initial
+@actor.initial_state
 class ObjRightChildState(ObjRightState):
 
 	def on_update(self):

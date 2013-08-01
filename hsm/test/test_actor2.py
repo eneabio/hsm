@@ -15,7 +15,7 @@ import unittest
 #  - ObjAState *
 #     - ObjBState *
 
-class ObjTopState(actor.ActorTopState):
+class ObjTopState(actor.TopState):
 
     def on_fatal_error(self):
 	print "FatalError"
@@ -35,7 +35,7 @@ class ObjErrorState(ObjTopState):
     def _exit(self):
 	print "exit %s State" % (self.__class__.__name__, )
 
-@actor.initial
+@actor.initial_state
 class ObjAState(ObjTopState):
 
     def _enter(self):
@@ -47,7 +47,7 @@ class ObjAState(ObjTopState):
     #def on_update(self):
 	#self.transition(ObjRightState)
 
-@actor.initial
+@actor.initial_state
 class ObjBState(ObjAState):
 
     def _enter(self):
@@ -67,7 +67,7 @@ class ObjCState(ObjTopState):
     def _exit(self):
 	print "exit %s State" % (self.__class__.__name__, )
 
-@actor.initial
+@actor.initial_state
 class ObjDState(ObjCState):
 
     def _enter(self):
@@ -125,11 +125,3 @@ class ActorTest2(unittest.TestCase):
 	runtime.dispatch_all_msg()
 	st = obj.get_state()
 	print st
-
-
-#obj.send_fini()
-#while True:
-    #msg = get_msg()
-    #if not msg:
-	#break
-    #dispatch_msg(msg)

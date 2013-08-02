@@ -24,38 +24,48 @@ error(msg, *args)
 
 TRACE = 10
 DEBUG = 20
-INFO  = 30
-WARN  = 40
+INFO = 30
+WARN = 40
 ERROR = 50
 
 _LEVEL = TRACE
+
+
 def setLevel(level):
-	global _LEVEL 
-	_LEVEL = level
+    global _LEVEL
+    _LEVEL = level
+
 
 def trace(msg, *args):
-	global _LEVEL 
-	global TRACE
-	if _LEVEL <= TRACE:
-		print ("TRACE: " + msg) % args
-def debug(msg, *args):
-	global _LEVEL 
-	global DEBUG
-	if _LEVEL <= DEBUG:
-		print ("DEBUG: " + msg) % args
-def info(msg, *args):
-	global _LEVEL 
-	global INFO
-	if _LEVEL <= INFO:
-		print ("INFO: " + msg) % args
-def warn(msg, *args):
-	global _LEVEL 
-	global WARN
-	if _LEVEL <= WARN:
-		print ("WARN: " + msg) % args
-def error(msg, *args):
-	global _LEVEL
-	global ERROR
-	if _LEVEL <= ERROR:
-		print ("ERROR: " + msg) % args
+    global _LEVEL
+    global TRACE
+    if _LEVEL <= TRACE:
+        print ("TRACE: " + msg) % args
 
+
+def debug(msg, *args):
+    global _LEVEL
+    global DEBUG
+    if _LEVEL <= DEBUG:
+        print ("DEBUG: " + msg) % args
+
+
+def info(msg, *args):
+    global _LEVEL
+    global INFO
+    if _LEVEL <= INFO:
+        print ("INFO: " + msg) % args
+
+
+def warn(msg, *args):
+    global _LEVEL
+    global WARN
+    if _LEVEL <= WARN:
+        print ("WARN: " + msg) % args
+
+
+def error(msg, *args):
+    global _LEVEL
+    global ERROR
+    if _LEVEL <= ERROR:
+        print ("ERROR: " + msg) % args

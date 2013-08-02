@@ -3,6 +3,7 @@
 # see LICENCE.txt
 
 import unittest
+import traceback
 
 from hsm.actor import TopState, initial_state, error_state
 from hsm import runtime
@@ -42,9 +43,11 @@ class ObjTopState(TopState):
 
 @error_state
 class ObjErrorState(ObjTopState):
-    def on_except(self, ex):
-        self._error = ex
-        print str(ex)
+    def on_except(self, (exc_type, exc_value, exc_traceback)):
+        self._error = exc_value
+        tb = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        for trace in tb:
+            self._log.trace(trace.remove)
 
 
 @initial_state

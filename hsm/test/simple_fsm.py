@@ -4,7 +4,7 @@ from hsm import runtime
 
 class Machine(actor.TopState):
     def _error(self):
-	self.transition(MachineError)
+	self.transition(ErrorState)
 	
 @actor.initial_state
 class Off(Machine):

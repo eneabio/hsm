@@ -16,6 +16,8 @@ Actors support the following features:
 """
 
 import types
+import traceback
+import sys
 
 import default_logger
 from runtime import post_msg as runtime_post_msg
@@ -32,6 +34,23 @@ def create_msg_sender(fun, signal, handler_name):
         runtime_post_msg((handler_name, args, kwargs))
 
     return post_msg
+
+
+def create_except_receiver(fun, name):
+    def receive_msg(*args, **kwargs):
+        handler = fun
+        self = args[0]
+        self._log.trace("(%s : %s) about to receive message ('%s' args:%s kwargs:%s) ",
+                        id(self), self.__class__.__name__, name, str(args), str(kwargs), )
+        try:
+            handler(*args, **kwargs)
+        except Exception, ex:
+            (type, value, tb) = sys.exc_info()
+            self._log.error("Exception %s<%s>", type, value)
+            for trace in traceback.format_exception(type, value, tb):
+                self._log.error("---- traceback: %s", trace)
+
+    return receive_msg
 
 
 def create_msg_receiver(fun, name):
@@ -54,7 +73,8 @@ def create_msg_receiver(fun, name):
                     break
                 curr = curr.__bases__[0]
             self.transition(error_state)
-            self.send_except(ex)
+            exc_type_value_traceback_triple = sys.exc_info()
+            self.send_except(exc_type_value_traceback_triple)
 
     return receive_msg
 
@@ -123,11 +143,13 @@ class StateMetaClass(type):
             if k.startswith("on_"):
                 sig = k[3:]
                 send_method_name = "send_" + sig
-                receiver = create_msg_receiver(v, sig)
+                if sig == "except":
+                    receiver = create_except_receiver(v, sig)
+                else:
+                    receiver = create_msg_receiver(v, sig)
                 sender = create_msg_sender(receiver, sig, k)
                 setattr(cls, k, receiver)
                 setattr(cls, send_method_name, sender)
-
 
     def __call__(cls, *args, **kwargs):
 
@@ -247,12 +269,10 @@ class TopState(object):
 
 
 class ErrorState(TopState):
-    def _enter(self):
-        pass
-
-    def on_except(self, ex):
-        self._log.error(str(ex))
-        self.send_fini()
+    def on_except(self, (exc_type, exc_value, exc_traceback )):
+        tb = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        for trace in tb:
+            self._log.error(trace)
 
 
 def error_state(state):

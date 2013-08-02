@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='Hsm',
-    version='0.1.3',
+    version='0.1.4',
     author='Fabio N. Filasieno',
     author_email='fabio@filasieno.com',
     packages=['hsm', 'hsm.test'],

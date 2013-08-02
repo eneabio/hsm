@@ -2,13 +2,14 @@ from distutils.core import setup
 
 setup(
     name='Hsm',
-    version='0.1.1',
+    version='0.1.3',
     author='Fabio N. Filasieno',
     author_email='fabio@filasieno.com',
     packages=['hsm', 'hsm.test'],
     scripts=[],
-    url='http://www.pyhsm.org',
+    url='http://pyhsm.org',
     license='LICENSE.txt',
-    description='PyHsm is a hierarchical state machines library designed for very large hand written state machines.',
+    description='Hsm is a hierarchical state machines library designed for very large hand written state machines.',
     long_description=open('README.txt').read(),
+    provides=["hsm"]
 )

@@ -1,3 +1,20 @@
+Hsm 0.1.8
+----------------------
+5 August 2013
+Mayor changes:
+ - totally removed logging from the runtime and replaced with an optional @trace_state(logger=None)
+   which will trace the execution on _entry()/_exit()/send_xx()/on_xxx() and transition().
+   Tracing is enabled hierarchically just mark for tracing a state using @trace_state(logger=None) and
+   all it's children will inherit tracing.
+ - removed run() from the runtime. The user must be in control of the main loop
+ - added a timeout parameter to the update(timeout=None). if the user set's None the system will block until an
+   event arrives
+ What's next:
+ - we still need to rump up documentation:
+   - User guide
+   - Reference guide
+   - documentation, documentation, documentation
+
 Hsm 0.1.7
 ----------------------
 4 August 2013

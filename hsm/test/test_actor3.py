@@ -6,7 +6,7 @@
 import unittest
 import traceback
 
-from hsm import TopState, initial_state, error_state
+from hsm import TopState, initial_state, error_state, trace_state
 from hsm import runtime as runtime_actor
 
 #Test state hierarchy:
@@ -18,7 +18,10 @@ from hsm import runtime as runtime_actor
 #     - ObjNotActiveState *
 #  - ObjMachineErrorState
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
+@trace_state(logging)
 class ObjTopState(TopState):
     def __init__(self):
         super(TopState, self).__init__()
@@ -37,10 +40,10 @@ class ObjTopState(TopState):
             self.transition(ObjNotActiveState)
 
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State", self.get_state_name(), )
 
 
 @error_state
@@ -55,18 +58,18 @@ class ObjErrorState(ObjTopState):
 @initial_state
 class ObjMachineUpState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State" , self.get_state_name(), )
 
 
 class ObjMachineDownState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State" , self.get_state_name(), )
 
     def on_problem_resolved(self):
         self.transition(ObjActiveState)
@@ -74,10 +77,10 @@ class ObjMachineDownState(ObjTopState):
 
 class ObjMachineErrorState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State" , self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State" , self.get_state_name(), )
 
 
 @initial_state
@@ -89,10 +92,10 @@ class ObjStandbyState(ObjMachineUpState):
         self.transition(ObjActiveState)
 
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info( "exit %s State", self.get_state_name(), )
 
 
 class ObjActiveState(ObjMachineUpState):
@@ -100,19 +103,19 @@ class ObjActiveState(ObjMachineUpState):
         self.transition(ObjStandbyState)
 
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State", self.get_state_name(), )
 
 
 @initial_state
 class ObjNotActiveState(ObjMachineDownState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State", self.get_state_name(), )
 
     def on_problem_resolved(self):
         self.transition(ObjActiveState)

@@ -17,47 +17,88 @@ Actors support the following features:
 
 import types
 import traceback
-import sys
 from runtime_queue import actor_message_queue
-import default_logger
+import logging
 
-__all__ = ["TopState", "initial_state", "error_state", "MissingInitialStateError", "NotAStateError", "ErrorState"]
+__all__ = ["TopState", "initial_state", "error_state", "trace_state", "MissingInitialStateError", "NotAStateError", "ErrorState"]
 
 
-def create_msg_sender(signal, handler_name):
+def create_msg_sender(handler_name):
     def post_msg(*args, **kwargs):
-        self = args[0]
-        self._log.trace("(%s : %s) about to send message ('%s' args:%s kwargs:%s) ",
-                        id(self), self.__class__.__name__, signal, str(args), str(kwargs), )
         actor_message_queue.append((handler_name, args, kwargs))
-
     return post_msg
 
 
-def create_except_receiver(fun, name):
+def create_except_receiver(fun, handler_name):
     def receive_msg(*args, **kwargs):
-        self = args[0]
-        self._log.trace("(%s : %s) about to receive message ('%s' args:%s kwargs:%s) ",
-                        id(self), self.__class__.__name__, name, str(args), str(kwargs), )
+        msg_name = handler_name
         try:
             fun(*args, **kwargs)
         except Exception, ex:
-            (type, value, tb) = sys.exc_info()
-            self._log.error("Exception %s<%s>", type, value)
-            for trace in traceback.format_exception(type, value, tb):
-                self._log.error("---- traceback: %s", trace)
-
+            pass
     return receive_msg
 
 
-def create_msg_receiver(fun, name):
+def create_msg_receiver(fun, handler_name):
     def receive_msg(*args, **kwargs):
-        self = args[0]
-        self._log.trace("(%s : %s) about to receive message ('%s' args:%s kwargs:%s) ", id(self),
-                        self.__class__.__name__, name, str(args), str(kwargs), )
+        msg_name = handler_name
         fun(*args, **kwargs)
-
     return receive_msg
+
+
+def create_trace_enter(method, logger):
+    assert logger is not None
+
+    def tracing_execute(*args, **kwargs):
+        logger.debug("%s: about to enter %s", id(args[0]), args[0].__class__.__name__)
+        return method(*args, **kwargs)
+    return tracing_execute
+
+
+def create_trace_exit(method, logger):
+    def tracing_execute(*args, **kwargs):
+        logger.debug("%s: about to exit %s", id(args[0]), args[0].__class__.__name__)
+        return method(*args, **kwargs)
+    return tracing_execute
+
+
+def create_trace_sender(method, logger):
+    def tracing_execute(*args, **kwargs):
+        name = method.func_closure[0].cell_contents
+        logger.debug("%s: about to send msg ('%s' %s %s)", id(args[0]), name,args, kwargs)
+        return method(*args, **kwargs)
+    return tracing_execute
+
+
+def create_trace_receiver(method, logger):
+    def tracing_execute(*args, **kwargs):
+        name = method.func_closure[1].cell_contents
+        logger.debug("%s: about to receive msg %s %s %s", id(args[0]), name,args, kwargs)
+        return method(*args, **kwargs)
+    return tracing_execute
+
+
+def create_trace_transition(logger):
+    def tracing_execute(*args):
+        return args[0].transition()(args[1])
+    return tracing_execute
+
+
+def add_tracing(cls, logger):
+    if logger is not None:
+        for (method_name, method) in cls.__dict__.items():
+            if method_name.startswith("send_"):
+                setattr(cls, method_name, create_trace_sender(method, logger))
+                continue
+            if method_name.startswith("on_"):
+                setattr(cls, method_name, create_trace_receiver(method, logger))
+                continue
+            if method_name.startswith("_enter"):
+                setattr(cls, method_name, create_trace_enter(method, logger))
+                continue
+            if method_name.startswith("_exit"):
+                setattr(cls, method_name, create_trace_exit(method, logger))
+                continue
 
 
 class MissingInitialStateError(Exception):
@@ -73,8 +114,8 @@ class NotAStateError(Exception):
         self._state = state
 
     def __str__(self):
-        return "@initialState can only by applied to a child class of HsmTopState. '%s' is not child " \
-               "of hsm.actor.TopState" % self._state.__name__
+        return "@initial_state can only by applied to a child class of TopState. '%s' doesn't inherit from " \
+               "hsm.actor.TopState" % self._state.__name__
 
 
 class ReservedNameError(Exception):
@@ -85,11 +126,33 @@ class ReservedNameError(Exception):
         return """class '%s': %s the 'send_' prefix is reserved to send messages""" % self._state.__name__
 
 
+class MultipleInheritanceNotSupportedError(Exception):
+    def __init__(self, state):
+        self._state = state
+
+    def __str__(self):
+        return """class '%s': multiple inheritance not supported""" % self._state.__name__
+
+
+class MissingParentState(Exception):
+    def __init__(self, state):
+        self._state = state
+
+    def __str__(self):
+        return """class '%s': missing parent state""" % self._state.__name__
+
+
 def empty_function(self):
     pass
 
 
-class StateMetaClass(type):
+def inheritMethod(cls, cls_dct, method_name):
+    if method_name not in cls_dct:
+        fun = getattr(TopState, method_name).__func__
+        method = types.MethodType(fun, None, cls)
+        cls_dct[method_name] = method
+
+class state(type):
     def __new__(mcs, name, bases, dct):
         """
         :rtype : object
@@ -108,14 +171,22 @@ class StateMetaClass(type):
         :param dct:
         :raise:
         """
-        super(StateMetaClass, cls).__init__(name, bases, dct)
-        assert len(bases) > 0
+        super(state, cls).__init__(name, bases, dct)
+        if len(bases) == 0:
+            raise MissingParentState(cls)
+        if len(bases) > 1:
+            raise MultipleInheritanceNotSupportedError(cls)
+
         setattr(cls, "__initial_state__", None)
         setattr(cls, "__error_state__", None)
-        if "_exit" not in dct:
-            setattr(cls, "_exit", types.MethodType(empty_function, None, cls))
-        if "_enter" not in dct:
-            setattr(cls, "_enter", types.MethodType(empty_function, None, cls))
+
+        #add standard methods to all states
+        if cls.__name__ != 'TopState':
+            inheritMethod(cls, dct, '_exit',)
+            inheritMethod(cls, dct, '_enter',)
+            inheritMethod(cls, dct, 'transition',)
+            inheritMethod(cls, dct, 'on_fini',)
+
         for (k, v) in dct.items():
             if k.startswith("send_"):
                 raise ReservedNameError(name, cls)
@@ -123,43 +194,41 @@ class StateMetaClass(type):
                 sig = k[3:]
                 send_method_name = "send_" + sig
                 if sig == "except":
-                    receiver = create_except_receiver(v, sig)
+                    receiver = create_except_receiver(v, k)
                 else:
-                    receiver = create_msg_receiver(v, sig)
-                sender = create_msg_sender(sig, k)
+                    receiver = create_msg_receiver(v, k)
+                sender = create_msg_sender(k)
                 setattr(cls, k, receiver)
                 setattr(cls, send_method_name, sender)
 
+        #Setup tracing
+        parent_state = bases[0]
+        parent_state_name = parent_state.__name__
+        if parent_state_name != "object":
+            logger = getattr(parent_state, '__trace_logger__')
+            setattr(cls, "__trace_logger__", logger)
+            add_tracing(cls, logger)
+        else:
+            setattr(cls, "__trace_logger__", None)
+            pass
+
     def __call__(cls, *args, **kwargs):
-
-        instance = super(StateMetaClass, cls).__call__(*args, **kwargs)
-
-        initial_state = getattr(instance.__class__, "__initial_state__", None)
-        if instance.__class__ is None:
-            raise MissingInitialStateError(cls)
-
-        if not hasattr(instance, "_log"):
-            instance._log = default_logger
-
-        instance._log.trace("(%s : <>): about to enter state (%s)", id(instance), instance.__class__.__name__)
+        instance = type.__call__(cls, *args, **kwargs)
         instance._enter()
+        initial_state = cls.__initial_state__
         while initial_state is not None:
-            instance._log.trace("(%s : %s): about to enter state (%s)", id(instance), instance.__class__.__name__,
-                                initial_state.__name__)
             instance.__class__ = initial_state
             instance._enter()
             initial_state = initial_state.__initial_state__
-
         instance._initial_state = cls
         return instance
 
 
 class TopState(object):
-    __metaclass__ = StateMetaClass
+    __metaclass__ = state
 
-    def __init__(self, log=default_logger):
+    def __init__(self):
         object.__init__(self)
-        self._log = log
 
     def _enter(self):
         pass
@@ -186,7 +255,6 @@ class TopState(object):
     def on_fini(self):
         """Close the finite state machine by exiting up to the top use state"""
         while True:
-            self._log.trace("(%s : %s): about to exit state", id(self), self.__class__.__name__, )
             self._exit()
             parent_state = self.__class__.__bases__[0]
             if parent_state != TopState:
@@ -201,7 +269,6 @@ class TopState(object):
         left = outState
         right = inState
         if left == right:
-            self._log.warn("transition to current state has no effect")
             return
         assert left != TopState
         assert right != TopState
@@ -216,7 +283,6 @@ class TopState(object):
 
         #Execute Exits
         while self.__class__ != left:
-            self._log.trace("(%s : %s): about to exit state", id(self), self.__class__.__name__, )
             self._exit()
             self.__class__ = self.__class__.__bases__[0]
 
@@ -233,13 +299,10 @@ class TopState(object):
 
             while enterTrail:
                 head = enterTrail.pop()
-                self._log.trace("(%s : %s): about to enter state (%s)", id(self), self.__class__.__name__,
-                                head.__name__)
                 self.__class__ = head
                 self._enter()
 
             #Enter target state
-            self._log.trace("(%s : %s): about to enter state (%s)", id(self), self.__class__.__name__, inState.__name__)
             self.__class__ = inState
             self._enter()
 
@@ -247,10 +310,6 @@ class TopState(object):
         cls = self.__class__
         next_state = cls.__initial_state__
         while next_state is not None:
-            self._log.trace("(%s : %s): about to enter state (%s)",
-                            id(self),
-                            self.__class__.__name__,
-                            next_state.__name__)
             self.__class__ = next_state
             self._enter()
             next_state = next_state.__initial_state__
@@ -293,4 +352,13 @@ def initial_state(state):
     return state
 
 
+class trace_state:
+    def __init__(self, logger=None):
+        self._logger = logger
 
+    def __call__(self, state):
+        if self._logger is not None:
+            setattr(state, '__trace_logger__', self._logger)
+            add_tracing(state, self._logger)
+            assert getattr(state, '__trace_logger__') is not None
+        return state

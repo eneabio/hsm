@@ -5,11 +5,11 @@
 import unittest
 import socket
 
-from hsm import runtime as iomonitor
-from hsm import actor
+from hsm import runtime
+from hsm import initial_state, TopState
 
 
-class Monitor(actor.TopState):
+class Monitor(TopState):
     def on_data_incoming(self, socket):
         pass
 
@@ -20,23 +20,23 @@ class Monitor(actor.TopState):
         pass
 
 
-@actor.initial_state
+@initial_state
 class MonitorReady(Monitor):
     pass
 
 
 class TestIOMonitor(unittest.TestCase):
     def setUp(self):
-        iomonitor.reset()
+        runtime.reset()
 
     def test_insert(self):
         sock = socket.socket()
         obj = Monitor()
-        iomonitor.monitor_readable(sock, obj)
-        iomonitor.monitor_readable(sock, obj)
-        iomonitor.monitor_readable(sock, obj)
-        self.assertTrue(sock in iomonitor._read_list_index.keys())
-        self.assertTrue(obj in iomonitor._read_list_index.values())
+        runtime.monitor_readable(sock, obj)
+        runtime.monitor_readable(sock, obj)
+        runtime.monitor_readable(sock, obj)
+        self.assertTrue(sock in runtime._read_list_index.keys())
+        self.assertTrue(obj in runtime._read_list_index.values())
 
 
     def test_remove(self):
@@ -47,17 +47,17 @@ class TestIOMonitor(unittest.TestCase):
         obj02 = Monitor()
         obj03 = Monitor()
 
-        iomonitor.monitor_readable(sock01, obj01)
-        iomonitor.monitor_readable(sock02, obj02)
-        iomonitor.monitor_readable(sock03, obj03)
-        iomonitor.monitor_readable(sock01, obj01)
-        iomonitor.monitor_readable(sock02, obj02)
-        iomonitor.monitor_readable(sock03, obj03)
-        iomonitor.monitor_readable(sock01, obj01)
-        iomonitor.monitor_readable(sock02, obj02)
-        iomonitor.monitor_readable(sock03, obj03)
+        runtime.monitor_readable(sock01, obj01)
+        runtime.monitor_readable(sock02, obj02)
+        runtime.monitor_readable(sock03, obj03)
+        runtime.monitor_readable(sock01, obj01)
+        runtime.monitor_readable(sock02, obj02)
+        runtime.monitor_readable(sock03, obj03)
+        runtime.monitor_readable(sock01, obj01)
+        runtime.monitor_readable(sock02, obj02)
+        runtime.monitor_readable(sock03, obj03)
 
-        self.assertTrue(iomonitor.rlist_index.__len__() == 3)
+        self.assertTrue(runtime.rlist_index.__len__() == 3)
 
     def test_remove(self):
         sock01 = socket.socket()
@@ -67,58 +67,58 @@ class TestIOMonitor(unittest.TestCase):
         obj02 = Monitor()
         obj03 = Monitor()
 
-        iomonitor.monitor_readable(sock01, obj01)
-        iomonitor.monitor_readable(sock02, obj02)
-        iomonitor.monitor_readable(sock03, obj03)
+        runtime.monitor_readable(sock01, obj01)
+        runtime.monitor_readable(sock02, obj02)
+        runtime.monitor_readable(sock03, obj03)
 
-        self.assertTrue(sock01 in iomonitor._read_list_index.keys())
-        self.assertTrue(sock02 in iomonitor._read_list_index.keys())
-        self.assertTrue(sock03 in iomonitor._read_list_index.keys())
+        self.assertTrue(sock01 in runtime._read_list_index.keys())
+        self.assertTrue(sock02 in runtime._read_list_index.keys())
+        self.assertTrue(sock03 in runtime._read_list_index.keys())
 
-        self.assertTrue(obj01 in iomonitor._read_list_index.values())
-        self.assertTrue(obj02 in iomonitor._read_list_index.values())
-        self.assertTrue(obj03 in iomonitor._read_list_index.values())
+        self.assertTrue(obj01 in runtime._read_list_index.values())
+        self.assertTrue(obj02 in runtime._read_list_index.values())
+        self.assertTrue(obj03 in runtime._read_list_index.values())
 
-        iomonitor.unmonitor_readable(sock02)
+        runtime.unmonitor_readable(sock02)
 
-        self.assertTrue(sock01 in iomonitor._read_list_index.keys())
-        self.assertTrue(sock02 not in iomonitor._read_list_index.keys())
-        self.assertTrue(sock03 in iomonitor._read_list_index.keys())
+        self.assertTrue(sock01 in runtime._read_list_index.keys())
+        self.assertTrue(sock02 not in runtime._read_list_index.keys())
+        self.assertTrue(sock03 in runtime._read_list_index.keys())
 
-        self.assertTrue(obj01 in iomonitor._read_list_index.values())
-        self.assertTrue(obj02 not in iomonitor._read_list_index.values())
-        self.assertTrue(obj03 in iomonitor._read_list_index.values())
+        self.assertTrue(obj01 in runtime._read_list_index.values())
+        self.assertTrue(obj02 not in runtime._read_list_index.values())
+        self.assertTrue(obj03 in runtime._read_list_index.values())
 
         #Twice
-        iomonitor.unmonitor_readable(sock02)
+        runtime.unmonitor_readable(sock02)
 
-        self.assertTrue(sock01 in iomonitor._read_list_index.keys())
-        self.assertTrue(sock02 not in iomonitor._read_list_index.keys())
-        self.assertTrue(sock03 in iomonitor._read_list_index.keys())
+        self.assertTrue(sock01 in runtime._read_list_index.keys())
+        self.assertTrue(sock02 not in runtime._read_list_index.keys())
+        self.assertTrue(sock03 in runtime._read_list_index.keys())
 
-        self.assertTrue(obj01 in iomonitor._read_list_index.values())
-        self.assertTrue(obj02 not in iomonitor._read_list_index.values())
-        self.assertTrue(obj03 in iomonitor._read_list_index.values())
+        self.assertTrue(obj01 in runtime._read_list_index.values())
+        self.assertTrue(obj02 not in runtime._read_list_index.values())
+        self.assertTrue(obj03 in runtime._read_list_index.values())
 
-        iomonitor.unmonitor_readable(sock01)
+        runtime.unmonitor_readable(sock01)
 
-        self.assertTrue(sock01 not in iomonitor._read_list_index.keys())
-        self.assertTrue(sock02 not in iomonitor._read_list_index.keys())
-        self.assertTrue(sock03 in iomonitor._read_list_index.keys())
+        self.assertTrue(sock01 not in runtime._read_list_index.keys())
+        self.assertTrue(sock02 not in runtime._read_list_index.keys())
+        self.assertTrue(sock03 in runtime._read_list_index.keys())
 
-        self.assertTrue(obj01 not in iomonitor._read_list_index.values())
-        self.assertTrue(obj02 not in iomonitor._read_list_index.values())
-        self.assertTrue(obj03 in iomonitor._read_list_index.values())
+        self.assertTrue(obj01 not in runtime._read_list_index.values())
+        self.assertTrue(obj02 not in runtime._read_list_index.values())
+        self.assertTrue(obj03 in runtime._read_list_index.values())
 
-        iomonitor.unmonitor_readable(sock03)
+        runtime.unmonitor_readable(sock03)
 
-        self.assertTrue(sock01 not in iomonitor._read_list_index.keys())
-        self.assertTrue(sock02 not in iomonitor._read_list_index.keys())
-        self.assertTrue(sock03 not in iomonitor._read_list_index.keys())
+        self.assertTrue(sock01 not in runtime._read_list_index.keys())
+        self.assertTrue(sock02 not in runtime._read_list_index.keys())
+        self.assertTrue(sock03 not in runtime._read_list_index.keys())
 
-        self.assertTrue(obj01 not in iomonitor._read_list_index.values())
-        self.assertTrue(obj02 not in iomonitor._read_list_index.values())
-        self.assertTrue(obj03 not in iomonitor._read_list_index.values())
+        self.assertTrue(obj01 not in runtime._read_list_index.values())
+        self.assertTrue(obj02 not in runtime._read_list_index.values())
+        self.assertTrue(obj03 not in runtime._read_list_index.values())
 
 
 if __name__ == '__main__':

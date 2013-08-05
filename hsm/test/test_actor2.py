@@ -4,8 +4,11 @@
 
 import unittest
 
-from hsm import TopState, initial_state
+from hsm import TopState, initial_state, trace_state
 from hsm import runtime
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 runtime_actor = runtime
 
@@ -19,33 +22,34 @@ runtime_actor = runtime
 #  - ObjAState *
 #     - ObjBState *
 
+@trace_state(logging)
 class ObjTopState(TopState):
     def on_fatal_error(self):
-        print "FatalError"
+        logging.info("FatalError")
         self.transition(ObjErrorState)
 
     def _enter(self):
-        print "enter %s State" % (self.__class__.__name__, )
+        logging.info("enter %s State", self.__class__.__name__, )
 
     def _exit(self):
-        print "exit %s State" % (self.__class__.__name__, )
+        logging.info("exit %s State" , self.__class__.__name__, )
 
 
 class ObjErrorState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.__class__.__name__, )
+        logging.info("enter %s State", self.__class__.__name__, )
 
     def _exit(self):
-        print "exit %s State" % (self.__class__.__name__, )
+        logging.info("exit %s State" , self.__class__.__name__, )
 
 
 @initial_state
 class ObjAState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.__class__.__name__, )
+        logging.info("enter %s State", self.__class__.__name__, )
 
     def _exit(self):
-        print "exit %s State" % (self.__class__.__name__, )
+        logging.info("exit %s State" , self.__class__.__name__, )
 
         #def on_update(self):
         #self.transition(ObjRightState)
@@ -54,10 +58,10 @@ class ObjAState(ObjTopState):
 @initial_state
 class ObjBState(ObjAState):
     def _enter(self):
-        print "enter %s State" % (self.__class__.__name__, )
+        logging.info("enter %s State", self.__class__.__name__, )
 
     def _exit(self):
-        print "exit %s State" % (self.__class__.__name__, )
+        logging.info("exit %s State" , self.__class__.__name__, )
 
         #def on_update(self):
         #self.transition(ObjRightState)
@@ -65,27 +69,27 @@ class ObjBState(ObjAState):
 
 class ObjCState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.__class__.__name__, )
+        logging.info("enter %s State", self.__class__.__name__, )
 
     def _exit(self):
-        print "exit %s State" % (self.__class__.__name__, )
+        logging.info("exit %s State" , self.__class__.__name__, )
 
 
 @initial_state
 class ObjDState(ObjCState):
     def _enter(self):
-        print "enter %s State" % (self.__class__.__name__, )
+        logging.info("enter %s State", self.__class__.__name__, )
 
     def _exit(self):
-        print "exit %s State" % (self.__class__.__name__, )
+        logging.info("exit %s State" , self.__class__.__name__, )
 
 
 class ObjEState(ObjCState):
     def _enter(self):
-        print "enter %s State" % (self.__class__.__name__, )
+        logging.info("enter %s State", self.__class__.__name__, )
 
     def _exit(self):
-        print "exit %s State" % (self.__class__.__name__, )
+        logging.info("exit %s State" , self.__class__.__name__, )
 
 
 class ActorTest2(unittest.TestCase):
@@ -127,4 +131,3 @@ class ActorTest2(unittest.TestCase):
         obj.send_fini()
         runtime_actor.dispatch_all_msg()
         st = obj.get_state()
-        print st

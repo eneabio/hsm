@@ -30,9 +30,9 @@ class TestIOMonitor(unittest.TestCase):
     def test_insert(self):
         sock = socket.socket()
         obj = Monitor()
-        iomonitor.monitor_incoming(sock, obj)
-        iomonitor.monitor_incoming(sock, obj)
-        iomonitor.monitor_incoming(sock, obj)
+        iomonitor.monitor_readable(sock, obj)
+        iomonitor.monitor_readable(sock, obj)
+        iomonitor.monitor_readable(sock, obj)
         self.assertTrue(sock in iomonitor.rlist_index.keys())
         self.assertTrue(obj in iomonitor.rlist_index.values())
 
@@ -45,15 +45,15 @@ class TestIOMonitor(unittest.TestCase):
         obj02 = Monitor()
         obj03 = Monitor()
 
-        iomonitor.monitor_incoming(sock01, obj01)
-        iomonitor.monitor_incoming(sock02, obj02)
-        iomonitor.monitor_incoming(sock03, obj03)
-        iomonitor.monitor_incoming(sock01, obj01)
-        iomonitor.monitor_incoming(sock02, obj02)
-        iomonitor.monitor_incoming(sock03, obj03)
-        iomonitor.monitor_incoming(sock01, obj01)
-        iomonitor.monitor_incoming(sock02, obj02)
-        iomonitor.monitor_incoming(sock03, obj03)
+        iomonitor.monitor_readable(sock01, obj01)
+        iomonitor.monitor_readable(sock02, obj02)
+        iomonitor.monitor_readable(sock03, obj03)
+        iomonitor.monitor_readable(sock01, obj01)
+        iomonitor.monitor_readable(sock02, obj02)
+        iomonitor.monitor_readable(sock03, obj03)
+        iomonitor.monitor_readable(sock01, obj01)
+        iomonitor.monitor_readable(sock02, obj02)
+        iomonitor.monitor_readable(sock03, obj03)
 
         self.assertTrue(iomonitor.rlist_index.__len__() == 3)
 
@@ -65,9 +65,9 @@ class TestIOMonitor(unittest.TestCase):
         obj02 = Monitor()
         obj03 = Monitor()
 
-        iomonitor.monitor_incoming(sock01, obj01)
-        iomonitor.monitor_incoming(sock02, obj02)
-        iomonitor.monitor_incoming(sock03, obj03)
+        iomonitor.monitor_readable(sock01, obj01)
+        iomonitor.monitor_readable(sock02, obj02)
+        iomonitor.monitor_readable(sock03, obj03)
 
         self.assertTrue(sock01 in iomonitor.rlist_index.keys())
         self.assertTrue(sock02 in iomonitor.rlist_index.keys())

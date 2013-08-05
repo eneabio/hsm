@@ -24,7 +24,7 @@ Note:
 
 import select
 
-__all__ = ["monitor", "monitor_incoming", "monitor_outgoing", "monitor_except",
+__all__ = ["monitor", "monitor_readable", "monitor_outgoing", "monitor_except",
            "unmonitor", "unmonitor_incoming", "unmonitor_outgoing", "unmonitor_except",
            "update", "reset"
 ]
@@ -126,11 +126,11 @@ def monitor(fd, target_actor):
     return
 
 
-def monitor_incoming(fd, target_actor):
+def monitor_readable(fd, target_actor):
     _monitor_event(fd, target_actor, rlist, rlist_index, READ_EVT)
 
 
-def monitor_outgoing(fd, target_actor):
+def monitor_writable(fd, target_actor):
     _monitor_event(fd, target_actor, wlist, wlist_index, WRITE_EVT)
 
 
@@ -160,10 +160,10 @@ def update(timeout=0):
     rl, wl, xl = select.select(rlist, wlist, xlist, timeout)
     for fd in rl:
         target = rlist_index[fd]
-        target.send_data_incoming(fd)
+        target.send_data_readable(fd)
     for fd in wl:
         target = wlist_index[fd]
-        target.send_data_outgoing(fd)
+        target.send_data_writable(fd)
     for fd in xl:
         target = xlist_index[fd]
         target.send_data_except(fd)

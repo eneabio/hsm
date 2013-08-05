@@ -1,3 +1,15 @@
+Hsm 0.1.5
+----------------------
+2 August 2013
+Minor changes:
+ - io monitor renames:
+    - from monitor_incoming to -> monitor_readable which will send "data_readable" signal
+    - from monitor_outgoing to -> monitor_writable which will send "data_writable" signal
+ What's next:
+ - User guide
+ - Reference guide
+ - documentation, documentation, documentation
+
 Hsm 0.1.4
 ----------------------
 2 August 2013

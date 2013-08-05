@@ -4,3 +4,4 @@ MANIFEST
 **pyc
 hsm.wpu
 
+covreport/**

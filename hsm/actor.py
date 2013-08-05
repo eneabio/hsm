@@ -213,6 +213,8 @@ class state(type):
             pass
 
     def __call__(cls, *args, **kwargs):
+        if cls.__initial_state__ == None:
+            raise MissingInitialStateError(cls)
         instance = type.__call__(cls, *args, **kwargs)
         instance._enter()
         initial_state = cls.__initial_state__

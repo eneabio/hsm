@@ -12,6 +12,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/hsm.iml" afterPath="$PROJECT_DIR$/.idea/hsm.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hsm/runtime_actor.py" afterPath="$PROJECT_DIR$/hsm/runtime_actor.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/setup.py" afterPath="$PROJECT_DIR$/setup.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hsm/test/test_actor.py" afterPath="$PROJECT_DIR$/hsm/test/test_actor.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hsm/test/test_actor2.py" afterPath="$PROJECT_DIR$/hsm/test/test_actor2.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hsm/test/test_actor3.py" afterPath="$PROJECT_DIR$/hsm/test/test_actor3.py" />
@@ -20,7 +21,7 @@
     <ignored path="hsm.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/runtime.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375544845866" ignored="false" />
-    <file path="/actor.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375708927900" ignored="false" />
+    <file path="/actor.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375713632601" ignored="false" />
     <file path="/__init__.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375701487497" ignored="false" />
     <file path="/test_iomonitor.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375710315806" ignored="false" />
     <file path="/runtime_actor.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375697686520" ignored="false" />
@@ -35,7 +36,7 @@
     <file path="/x.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375546347383" ignored="false" />
     <file path="/runtime_queue.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375546703731" ignored="false" />
     <file path="/test_actor.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375709653138" ignored="false" />
-    <file path="/CHANGES.txt" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375710438408" ignored="false" />
+    <file path="/CHANGES.txt" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375713828987" ignored="false" />
     <file path="/test_mainloop.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375606504371" ignored="false" />
     <file path="/Dummy.txt" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375708466344" ignored="false" />
     <file path="/http_server.py" changelist="b7731422-6c3c-490f-a500-62c93da5a6fe" time="1375630541500" ignored="false" />
@@ -85,6 +86,15 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="setup.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/setup.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="4" column="18" selection-start="75" selection-end="75" vertical-scroll-proportion="0.16748768">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="test_actor2.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hsm/test/test_actor2.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -100,7 +110,13 @@
         <entry file="file://$PROJECT_DIR$/hsm/test/test_actor3.py">
           <provider selected="true" editor-type-id="text-editor">
             <state line="152" column="0" selection-start="4019" selection-end="4019" vertical-scroll-proportion="0.0">
-              <folding />
+              <folding>
+                <marker date="1375709704927" expanded="true" signature="1068:1131" placeholder="..." />
+                <marker date="1375709704927" expanded="true" signature="1978:2151" placeholder="..." />
+                <marker date="1375709704927" expanded="true" signature="2087:2151" placeholder="..." />
+                <marker date="1375709704927" expanded="true" signature="2574:2820" placeholder="..." />
+                <marker date="1375709704927" expanded="true" signature="2757:2820" placeholder="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -117,7 +133,7 @@
       <file leaf-file-name="actor.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hsm/actor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="33" column="31" selection-start="946" selection-end="946" vertical-scroll-proportion="0.0">
+            <state line="220" column="40" selection-start="6848" selection-end="6848" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="e#447#459#0" expanded="true" />
               </folding>
@@ -128,7 +144,7 @@
       <file leaf-file-name="CHANGES.txt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CHANGES.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="81" selection-start="143" selection-end="143" vertical-scroll-proportion="0.0">
+            <state line="6" column="42" selection-start="195" selection-end="195" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -145,10 +161,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.txt" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="README.txt" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="16" column="82" selection-start="610" selection-end="610" vertical-scroll-proportion="0.6699507">
+            <state line="16" column="82" selection-start="610" selection-end="610" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -158,15 +174,6 @@
         <entry file="file://$PROJECT_DIR$/hsm/runtime_actor.py">
           <provider selected="true" editor-type-id="text-editor">
             <state line="110" column="0" selection-start="2977" selection-end="2977" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="case.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://C:/Python27/Lib/unittest/case.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="326" column="0" selection-start="10783" selection-end="10783" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -186,7 +193,6 @@
         <option value="$PROJECT_DIR$/hsm/test/runtime_queue.py" />
         <option value="$PROJECT_DIR$/hsm/runtime_queue.py" />
         <option value="$PROJECT_DIR$/hsm/test/test_mainloop.py" />
-        <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/../tranquillity/tranquillity/http_server_conf.py" />
         <option value="$PROJECT_DIR$/../tranquillity/tranquillity/http_servlet.py" />
         <option value="$PROJECT_DIR$/hsm/runtime_actor.py" />
@@ -194,10 +200,11 @@
         <option value="$PROJECT_DIR$/hsm/test/test_actor.py" />
         <option value="$PROJECT_DIR$/hsm/test/test_actor2.py" />
         <option value="$PROJECT_DIR$/hsm/test/test_actor3.py" />
-        <option value="$PROJECT_DIR$/hsm/actor.py" />
         <option value="$PROJECT_DIR$/hsm/test/test_iomonitor.py" />
-        <option value="$PROJECT_DIR$/CHANGES.txt" />
         <option value="$PROJECT_DIR$/README.txt" />
+        <option value="$PROJECT_DIR$/hsm/actor.py" />
+        <option value="$PROJECT_DIR$/CHANGES.txt" />
+        <option value="$PROJECT_DIR$/setup.py" />
       </list>
     </option>
   </component>
@@ -636,13 +643,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/covreport/jquery.hotkeys.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="15" selection-start="2177" selection-end="2177" vertical-scroll-proportion="0.3321739">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hsm/runtime_queue.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
@@ -668,7 +668,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="6" column="0" selection-start="141" selection-end="141" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#141#160#0" expanded="true" />
+            <element signature="e#141#160#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -701,15 +701,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hsm/actor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="31" selection-start="946" selection-end="946" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#447#459#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hsm/test/test_actor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="22" column="0" selection-start="458" selection-end="479" vertical-scroll-proportion="0.0">
@@ -731,7 +722,13 @@
     <entry file="file://$PROJECT_DIR$/hsm/test/test_actor3.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="152" column="0" selection-start="4019" selection-end="4019" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <marker date="1375709704927" expanded="true" signature="1068:1131" placeholder="..." />
+            <marker date="1375709704927" expanded="true" signature="1978:2151" placeholder="..." />
+            <marker date="1375709704927" expanded="true" signature="2087:2151" placeholder="..." />
+            <marker date="1375709704927" expanded="true" signature="2574:2820" placeholder="..." />
+            <marker date="1375709704927" expanded="true" signature="2757:2820" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -744,16 +741,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CHANGES.txt">
+    <entry file="file://$PROJECT_DIR$/README.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="81" selection-start="143" selection-end="143" vertical-scroll-proportion="0.0">
+        <state line="16" column="82" selection-start="610" selection-end="610" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.txt">
+    <entry file="file://$PROJECT_DIR$/hsm/actor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="82" selection-start="610" selection-end="610" vertical-scroll-proportion="0.6699507">
+        <state line="220" column="40" selection-start="6848" selection-end="6848" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#447#459#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CHANGES.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="42" selection-start="195" selection-end="195" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="18" selection-start="75" selection-end="75" vertical-scroll-proportion="0.16748768">
           <folding />
         </state>
       </provider>

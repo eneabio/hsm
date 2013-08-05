@@ -1,3 +1,14 @@
+Hsm 0.1.9
+----------------------
+5 August 2013
+Mayor changes:
+ - minor fix. An exception is raised if no initial state is set on creation.
+ What's next:
+ - we still need to rump up documentation:
+   - User guide
+   - Reference guide
+   - documentation, documentation, documentation
+
 Hsm 0.1.8
 ----------------------
 5 August 2013

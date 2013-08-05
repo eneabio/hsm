@@ -1,0 +1,70 @@
+Hsm 0.1.7
+----------------------
+4 August 2013
+Minor changes:
+ - fixed bug: _log now available in state __init__
+ - now the runtime is an Hsm and can receive message
+ What's next:
+ - User guide
+ - Reference guide
+ - documentation, documentation, documentation
+
+
+Hsm 0.1.6
+----------------------
+4 August 2013
+Mayor changes:
+ - merged the iomonitor into the runtime
+ - now the runtime is an Hsm and can receive message
+ What's next:
+ - User guide
+ - Reference guide
+ - documentation, documentation, documentation
+
+Hsm 0.1.3
+----------------------
+1 August 2013
+Mayor changes:
+ - added error_state
+ - added io monitoring based on select
+Minor changes:
+ - more tests
+ - fixed indentations and other minor stilistic issues
+ What's next:
+ - User guide
+ - Reference guide
+ - documentation, documentation, documentation
+
+
+Hsm 0.1.2
+----------------------
+1 August 2013
+Mayor changes:
+ - renamed actor.ActorTopState to actor.TopState
+ - added io monitoring based on select 
+Minor changes: 
+ - more tests
+ - Runtime IO from network
+ - More Code Documentation ( some __doc__ )
+ - Fixed indentations to a more standard 4 spaces
+What's next: 
+ - User guide
+ - Reference guide
+ - documentation, documentation, documentation
+ 
+Hsm 0.1.1
+----------------------
+31 July 2013
+ - Mayor renaming: Python Naming conventions PEP8
+ - More Code Documentation ( some __doc__ )
+ What's next:
+ - Add runtime IO from disk
+ - more __doc__
+ 
+Hsm 0.1.0
+----------------------
+30 July 2013
+ - Initial Commit and first setup of things
+ What's next:
+ - fix naming conventions and start adding some __doc__
+

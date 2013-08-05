@@ -66,7 +66,7 @@ class Runtime(TopState):
     EXCEPT_EVT = 2
 
     def __init__(self):
-        super(TopState, self).__init__()
+        TopState.__init__(self)
 
         self._quit = False
         self._read_list = []
@@ -78,6 +78,9 @@ class Runtime(TopState):
         self._except_list_index = {}
 
         self._state_index = {}
+
+    def quit(self):
+        return self._quit
 
     def get_msg(self):
         """
@@ -248,7 +251,7 @@ class Runtime(TopState):
     def unmonitor_except(self, fd):
         self._unmonitor_event(fd, self._except_list, self._except_list_index, Runtime.EXCEPT_EVT)
 
-    def update(self, timeout=0):
+    def update(self, timeout=None):
         if not self._read_list and not self._write_list and not self._except_list:
             return
         rl, wl, xl = select.select(self._read_list, self._write_list, self._except_list, timeout)
@@ -265,11 +268,8 @@ class Runtime(TopState):
 
 @initial_state
 class RuntimeReadyState(Runtime):
-    def _enter(self):
-        self._log.trace("Runtime ready to run(your_main_loop)")
 
     def on_quit(self):
-        self._log.trace("Quit message received")
         self._quit = True
 
 

@@ -1,8 +1,21 @@
-Hsm 0.1.4
+Hsm 0.1.7
 ----------------------
-2 August 2013
+4 August 2013
+Minor changes:
+ - fixed bug: _log now available in state __init__
+ - now the runtime is an Hsm and can receive message
+ What's next:
+ - User guide
+ - Reference guide
+ - documentation, documentation, documentation
+
+
+Hsm 0.1.6
+----------------------
+4 August 2013
 Mayor changes:
- - on_exception -> now takes exc_type, exc_value, exc_traceback to get the full trace
+ - merged the iomonitor into the runtime
+ - now the runtime is an Hsm and can receive message
  What's next:
  - User guide
  - Reference guide

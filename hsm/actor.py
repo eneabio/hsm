@@ -18,32 +18,29 @@ Actors support the following features:
 import types
 import traceback
 import sys
-
+from runtime_queue import actor_message_queue
 import default_logger
-from runtime import post_msg as runtime_post_msg
+
+__all__ = ["TopState", "initial_state", "error_state", "MissingInitialStateError", "NotAStateError", "ErrorState"]
 
 
-__all__ = ["TopState", "initial_state", "error_state", "MissingInitialStateError", "NotActorStateError", "ErrorState"]
-
-
-def create_msg_sender(fun, signal, handler_name):
+def create_msg_sender(signal, handler_name):
     def post_msg(*args, **kwargs):
         self = args[0]
         self._log.trace("(%s : %s) about to send message ('%s' args:%s kwargs:%s) ",
                         id(self), self.__class__.__name__, signal, str(args), str(kwargs), )
-        runtime_post_msg((handler_name, args, kwargs))
+        actor_message_queue.append((handler_name, args, kwargs))
 
     return post_msg
 
 
 def create_except_receiver(fun, name):
     def receive_msg(*args, **kwargs):
-        handler = fun
         self = args[0]
         self._log.trace("(%s : %s) about to receive message ('%s' args:%s kwargs:%s) ",
                         id(self), self.__class__.__name__, name, str(args), str(kwargs), )
         try:
-            handler(*args, **kwargs)
+            fun(*args, **kwargs)
         except Exception, ex:
             (type, value, tb) = sys.exc_info()
             self._log.error("Exception %s<%s>", type, value)
@@ -55,26 +52,10 @@ def create_except_receiver(fun, name):
 
 def create_msg_receiver(fun, name):
     def receive_msg(*args, **kwargs):
-        handler = fun
         self = args[0]
         self._log.trace("(%s : %s) about to receive message ('%s' args:%s kwargs:%s) ", id(self),
                         self.__class__.__name__, name, str(args), str(kwargs), )
-        try:
-            handler(*args, **kwargs)
-        except Exception, ex:
-            curr = self.__class__
-            error_state = None
-            while True:
-                if curr.__error_state__ is not None:
-                    error_state = curr.__error_state__
-                    break
-                if curr.__bases__[0] == TopState:
-                    error_state = ErrorState
-                    break
-                curr = curr.__bases__[0]
-            self.transition(error_state)
-            exc_type_value_traceback_triple = sys.exc_info()
-            self.send_except(exc_type_value_traceback_triple)
+        fun(*args, **kwargs)
 
     return receive_msg
 
@@ -111,13 +92,11 @@ def empty_function(self):
 class StateMetaClass(type):
     def __new__(mcs, name, bases, dct):
         """
-
-
         :rtype : object
-        :param name: 
-        :param bases: 
-        :param dct: 
-        :return: 
+        :param name:
+        :param bases:
+        :param dct:
+        :return:
         """
         return type.__new__(mcs, name, bases, dct)
 
@@ -147,7 +126,7 @@ class StateMetaClass(type):
                     receiver = create_except_receiver(v, sig)
                 else:
                     receiver = create_msg_receiver(v, sig)
-                sender = create_msg_sender(receiver, sig, k)
+                sender = create_msg_sender(sig, k)
                 setattr(cls, k, receiver)
                 setattr(cls, send_method_name, sender)
 
@@ -159,7 +138,7 @@ class StateMetaClass(type):
         if instance.__class__ is None:
             raise MissingInitialStateError(cls)
 
-        if not hasattr(instance, "_logger"):
+        if not hasattr(instance, "_log"):
             instance._log = default_logger
 
         instance._log.trace("(%s : <>): about to enter state (%s)", id(instance), instance.__class__.__name__)
@@ -178,8 +157,9 @@ class StateMetaClass(type):
 class TopState(object):
     __metaclass__ = StateMetaClass
 
-    def __init__(self):
+    def __init__(self, log=default_logger):
         object.__init__(self)
+        self._log = log
 
     def _enter(self):
         pass
@@ -194,6 +174,14 @@ class TopState(object):
     def get_state(self):
         """Returns the current state"""
         return self.__class__
+
+    def on_msg(self, sig, *args, **kwargs):
+        """
+        Dynamically send a msg to the runtime.
+        """
+        assert isinstance(sig, str)
+        assert len(args) > 1
+        self._actor_message_queue.append(("on_" + sig, (self,) + args, kwargs,))
 
     def on_fini(self):
         """Close the finite state machine by exiting up to the top use state"""
@@ -303,3 +291,6 @@ def initial_state(state):
     if parent != TopState:
         parent.__initial_state__ = state
     return state
+
+
+

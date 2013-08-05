@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright (C) 2013 Fabio N. Filasieno
 # Licenced under the MIT license
 # see LICENCE.txt
@@ -5,9 +6,8 @@
 import unittest
 import traceback
 
-from hsm.actor import TopState, initial_state, error_state
-from hsm import runtime
-
+from hsm import TopState, initial_state, error_state
+from hsm import runtime as runtime_actor
 
 #Test state hierarchy:
 # ObjTopState
@@ -18,8 +18,10 @@ from hsm import runtime
 #     - ObjNotActiveState *
 #  - ObjMachineErrorState
 
+
 class ObjTopState(TopState):
     def __init__(self):
+        super(TopState, self).__init__()
         self._error = None
 
     def on_raise(self, ex_msg):
@@ -53,7 +55,7 @@ class ObjErrorState(ObjTopState):
 @initial_state
 class ObjMachineUpState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name() )
+        print "enter %s State" % (self.get_state_name(), )
 
     def _exit(self):
         print "exit %s State" % (self.get_state_name(), )
@@ -123,27 +125,27 @@ class ActorTest2(unittest.TestCase):
         self.assertTrue(ObjStandbyState == st)
         obj.send_switch_active()
 
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjActiveState == st)
 
         obj.send_problem("WARNING")
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjStandbyState == st)
 
         obj.send_problem_resolved()
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjActiveState == st)
 
         obj.send_problem("Error")
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjNotActiveState == st)
 
         obj.send_raise("raise error")
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjErrorState == st)
         self.assertTrue(obj._error.message == "raise error")

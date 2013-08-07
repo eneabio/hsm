@@ -1,12 +1,13 @@
+# coding=utf-8
 # Copyright (C) 2013 Fabio N. Filasieno
 # Licenced under the MIT license
 # see LICENCE.txt
 
 import unittest
+import traceback
 
-from hsm.actor import TopState, initial_state, error_state
-from hsm import runtime
-
+from hsm import TopState, initial_state, error_state, trace_state
+from hsm import runtime as runtime_actor
 
 #Test state hierarchy:
 # ObjTopState
@@ -17,8 +18,13 @@ from hsm import runtime
 #     - ObjNotActiveState *
 #  - ObjMachineErrorState
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+@trace_state(logging)
 class ObjTopState(TopState):
     def __init__(self):
+        super(TopState, self).__init__()
         self._error = None
 
     def on_raise(self, ex_msg):
@@ -34,34 +40,36 @@ class ObjTopState(TopState):
             self.transition(ObjNotActiveState)
 
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State", self.get_state_name(), )
 
 
 @error_state
 class ObjErrorState(ObjTopState):
-    def on_except(self, ex):
-        self._error = ex
-        print str(ex)
+    def on_except(self, (exc_type, exc_value, exc_traceback)):
+        self._error = exc_value
+        tb = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        for trace in tb:
+            self._log.trace(trace.remove)
 
 
 @initial_state
 class ObjMachineUpState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name() )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State" , self.get_state_name(), )
 
 
 class ObjMachineDownState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State" , self.get_state_name(), )
 
     def on_problem_resolved(self):
         self.transition(ObjActiveState)
@@ -69,10 +77,10 @@ class ObjMachineDownState(ObjTopState):
 
 class ObjMachineErrorState(ObjTopState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State" , self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State" , self.get_state_name(), )
 
 
 @initial_state
@@ -84,10 +92,10 @@ class ObjStandbyState(ObjMachineUpState):
         self.transition(ObjActiveState)
 
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info( "exit %s State", self.get_state_name(), )
 
 
 class ObjActiveState(ObjMachineUpState):
@@ -95,19 +103,19 @@ class ObjActiveState(ObjMachineUpState):
         self.transition(ObjStandbyState)
 
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State", self.get_state_name(), )
 
 
 @initial_state
 class ObjNotActiveState(ObjMachineDownState):
     def _enter(self):
-        print "enter %s State" % (self.get_state_name(), )
+        logging.info("enter %s State", self.get_state_name(), )
 
     def _exit(self):
-        print "exit %s State" % (self.get_state_name(), )
+        logging.info("exit %s State", self.get_state_name(), )
 
     def on_problem_resolved(self):
         self.transition(ObjActiveState)
@@ -120,27 +128,27 @@ class ActorTest2(unittest.TestCase):
         self.assertTrue(ObjStandbyState == st)
         obj.send_switch_active()
 
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjActiveState == st)
 
         obj.send_problem("WARNING")
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjStandbyState == st)
 
         obj.send_problem_resolved()
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjActiveState == st)
 
         obj.send_problem("Error")
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjNotActiveState == st)
 
         obj.send_raise("raise error")
-        runtime.dispatch_all_msg()
+        runtime_actor.dispatch_all_msg()
         st = obj.get_state()
         self.assertTrue(ObjErrorState == st)
         self.assertTrue(obj._error.message == "raise error")

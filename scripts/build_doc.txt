@@ -1,0 +1,35 @@
+To use this script it's necessary first of all install Sphinx (>pip install sphinx).
+After you have unstalled Sphinx you can use this script for generate documentation.
+There are three passages:
+	- verify that your setup.py has the row scripts=['scripts/build_doc.py'];
+	- in the directory where is your setup.py run >python setup.py build_scripts;
+	- in the same directory run >python scripts/build_doc.py.
+
+When sphinx-quickstart is launched, it will create for you the directories/files necessary
+with defualt config. It will call you other information that you can choice what ever you want but
+I suggest these:
+	- Root path for the documentation [.]: enter
+	- Separate source and build directories (y/N) [n]: enter
+	- Name prefix for templates and static dir [_]: enter
+	- Project name: Hsm
+	- Author name(s): Fabio F. Filasieno
+	- Project version: 0.1.3
+	- Project release [0.1.3]: enter
+	- Source file suffix [.rst]: enter
+	- Name of your master document (without suffix) [index]: enter
+	- Do you want to use the epub builder (y/N) [n]: enter
+	- autodoc: automatically insert docstrings from modules (y/N) [n]: y
+	- doctest: automatically test code snippets in doctest blocks (y/N) [n]: enter
+	- intersphinx: link between Sphinx documentation of different projects (y/N) [n]: enter
+	- todo: write "todo" entries that can be shown or hidden on build (y/N) [n]: enter
+	- coverage: checks for documentation coverage (y/N) [n]: enter
+	- pngmath: include math, rendered as PNG images (y/N) [n]: enter
+	- mathjax: include math, rendered in the browser by MathJax (y/N) [n]: enter
+	- ifconfig: conditional inclusion of content based on config values (y/N) [n]: enter
+	- viewcode: include links to the source code of documented Python objects (y/N) [n]: y
+	- Create Makefile? (Y/n) [y]: n
+	- Create Windows command file? (Y/n) [y]: n
+
+
+When the script has finished you can view html files in docs/_build
+

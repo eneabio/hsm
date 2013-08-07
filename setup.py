@@ -6,7 +6,7 @@ setup(
     author='Fabio N. Filasieno',
     author_email='fabio@filasieno.com',
     packages=['hsm', 'hsm.test'],
-    scripts=[],
+    scripts=['scripts/build_doc.py'],
     url='http://pyhsm.org',
     license='LICENSE.txt',
     description='Hsm is a hierarchical state machines library designed for very large hand written state machines.',
